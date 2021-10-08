@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Faf Carrelage !{% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+
+{% block body %}
+<a class="skip-link" href="#main-content">Réalisations</a>
+<a class="skip-link" href="#">Qui-suis-je ?</a>
+<a class="skip-link" href="#">Me contacter</a>
+<!-- The overlay -->
+
+
+<nav id="myNav" class="overlay">
+  <a href='#' class="closebtn" id="closeNav">&times;</a>
+  <ul id="overlay-content">
+  <!-- TODO menu from backend-->
+    <li><a href="/200">Réalisations</a></li>
+    <li><a href="/20">Catégorie 1</a></li>
+    <li><a href="/3">Catégorie 2</a></li>
+    <li><a href="/8">Catégorie 3</a></li>
+    <li><a href="#">Qui-suis-je ?</a></li>
+    <li><a href="#">Me contacter</a></li>
+
+  </ul>
+</nav>
+
+<span id="nav" style="font-size:30px;cursor:pointer">&#9776; Menu</span>
+
+<main class="transition-fade">
+
+  <canvas id="main-content"class="view">  
+    <div class=data id="swup">
+      <script id="pageData" type="application/json">
+       {{ arrTrans | json_encode()|raw }}
+      </script>
+    </div> 
+  </canvas>
+</main>
+{% endblock %}
