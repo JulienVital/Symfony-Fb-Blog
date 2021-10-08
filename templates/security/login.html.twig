@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+
+{% for message in app.flashes('note') %}
+    <div class="flash-notice">
+        {{ message }}
+    </div>
+{% endfor %}
+
+    {% if app.user %}
+        <div class="mb-3">
+            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+
+    <p>
+    <a href="{{ path('app_connect')}}">Se connecter avec FB</a>
+    </p>
+{% endblock %}
