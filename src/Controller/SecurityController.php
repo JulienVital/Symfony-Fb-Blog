@@ -19,18 +19,34 @@ class SecurityController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_admin');
+        }
 
-        // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+
+        return $this->render('security/login.html.twig', ['error' => $error]);
     }
 
+    /**
+     * @Route("/connect", name="app_connect")
+     */
+    public function connect (ClientRegistry $clientRegistry) : RedirectResponse
+    {
+        /** @var FacebookClient $client */
+        $client = $clientRegistry->getClient('facebook');
+
+        return $client->redirect(['pages_show_list','pages_read_engagement']); 
+    }
+
+    /**
+     * @Route("/connect_facebook_check", name="connect_facebook_check")
+     */
+    public function facebook_check (ClientRegistry $clientRegistry) 
+    {
+        
+    }
     /**
      * @Route("/logout", name="app_logout")
      */
