@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,20 @@ class PublicController extends AbstractController
 
         return $this->render('public/page.html.twig', [
             'arrTrans' => $arrTrans
+        ]);
+    }
+
+    /**
+      * @Route("/test", name="test")
+     */
+    public function test(ImageRepository $imageRepository): Response
+    {
+ 
+        $all = array_column($imageRepository->findAllurl(),'url');
+
+
+        return $this->render('public/page.html.twig', [
+            'arrTrans' => $all
         ]);
     }
 }

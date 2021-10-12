@@ -19,6 +19,17 @@ class ImageRepository extends ServiceEntityRepository
         parent::__construct($registry, Image::class);
     }
 
+    public function findAllurl(){
+        
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            SELECT url FROM image';
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+
+        // returns an array of arrays (i.e. a raw data set)
+        return $stmt->fetchAll();
+    }
     // /**
     //  * @return Image[] Returns an array of Image objects
     //  */
