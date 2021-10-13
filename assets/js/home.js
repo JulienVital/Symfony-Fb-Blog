@@ -2,7 +2,6 @@
 
 //PIXI = require('pixi.js');
 import * as PIXI from 'pixi.js'
-import { BaseTexture } from 'pixi.js'
 const Viewport = require('pixi-viewport').Viewport
 const Grid = require('./Grid').Grid
 import Swup from 'swup'
@@ -10,39 +9,40 @@ import Swup from 'swup'
 const swup = new Swup()
 swup.on('contentReplaced', destroy);
 
+console.log(swup)
+
+
 let view = document.querySelector('.view')
 // VARIABLE
-let width, height, viewport, app,animateIsEnd,data
+let width, height, viewport, app
 
 let arrTrans = JSON.parse(document.getElementById('pageData').innerHTML);
-console.log(arrTrans);
+
 
 function destroy(){
   app.destroy()
-  animateIsEnd=false
   arrTrans = JSON.parse(document.getElementById('pageData').innerHTML);
   init()
 }
 
-let loader
+
 function initApp(){
-  //data = document.querySelector('#pageData');
-  //console.log(tab);
-  
+
   app = new PIXI.Application({view})
 
   app.backgroundColor =0x000000
   app.renderer.autoDensity = true
   app.renderer.resize(window.innerWidth, window.innerHeight)
   app.renderer.backgroundColor = 0xFFFFFF;
-  loader = PIXI.Loader.shared; 
+  
 
+  
 }
 
-let gridSize = 50
-const gridMin = 8
-const imagePadding = 100
-let gridColumnsCount, gridRowsCount, gridColumns, gridRows, grid, container, rects, images,imagesUrls, text, texture
+let gridSize = 70
+const gridMin = 9
+const imagePadding = 125
+let gridColumnsCount, gridRowsCount, gridColumns, gridRows, grid, container, rects, images,imagesUrls, text
 const centralText='FAF Carrelage'
 
 function init (){
@@ -54,6 +54,7 @@ function init (){
   initGrid()
   initText()
   
+
   initRectsAndImages()
   fitWorld()
 
@@ -84,11 +85,17 @@ function initViewport(){
     .pinch()
     .wheel()
     .decelerate()
+    //
     .clampZoom({maxScale: 0.7,  minScale :0.2 })
-    .bounce({time:400});
+    .on('clicked', click)
+    //.bounce({time:400});
   
 
 }
+function click(e){
+  //console.log(e)
+}
+
 window.onload = init
 window.addEventListener('resize', onResize)
 
@@ -101,7 +108,7 @@ function onResize () {
   resizeTimer = setTimeout(() => {
     app.ticker.stop()
     init()
-  }, 200)  
+  }, 100)  
 }
 
 function initGrid () {
@@ -171,7 +178,7 @@ function fitWorld(){
   //viewport.worldHeight = container.height;
   //viewport.worldWidth = container.width;
   //
-  //viewport.bounce({})
+  viewport.bounce({})
   viewport.moveCenter(viewport.worldWidth/2,viewport.worldHeight/2)
   viewport.scaled=0.2
   viewport.animate({
@@ -200,12 +207,14 @@ function checkRectsAndImages(){
       // start loading image
       if (!image.discovered) {
         image.discovered = true
-        loadTextureForImage(index)
-        
+        setTimeout(function() {
+   
+          loadTextureForImage(index)
+        },Math.floor(Math.random() * (500 - 10)) + 10);
       }
       // If image is loaded, increase alpha if possible
       if (image.loaded && image.alpha < 1) {
-        image.alpha += 0.02
+        image.alpha += 0.01
       }
     }
   })
@@ -221,46 +230,41 @@ function rectIntersectsWithViewport (image) {
     image.y < viewport.hitArea.y + viewport.hitArea.height
   )
 }
-let errorLoadImage =0;
+
 function loadTextureForImage (index) {
-  
   // Get image Sprite
   const image = images[index]
   // Set the url to get a random image from Unsplash Source, given image dimensions
-  
   const url = arrTrans[index]
   // Get the corresponding rect, to store more data needed (it is a normal Object)
   const rect = rects[index]
   // Create a new AbortController, to abort fetch if needed
   const { signal } = rect.controller = new AbortController()
   // Fetch the image
-  fetch(url, { signal }).then(response => {
+  const loader = new PIXI.Loader();
     // Get image URL, and if it was downloaded before, load another image
     // Otherwise, save image URL and set the texture
-    const id = response.url
-
+    const id = url
+   
     if (imagesUrls[id]) {
-    
-      errorLoadImage=0
+      setTimeout(function() {
+   
+        loadTextureForImage(index++)
+      },Math.floor(Math.random() * (500 - 10)) + 10);
+      
     } else {
-  
+      loader.add(id)
+      loader.load((loader, resources) => {
+        
         imagesUrls[id] = true
-        //texture = cropImage(image,PIXI.Texture.from(response.url)) 
-        texture = PIXI.Texture.from(response.url) 
-        texture = cropImage(image,texture) 
-        image.texture = texture
-        image.loaded = true
-    
-    }
-  }).catch((e) => {
-    
-    errorLoadImage++
-    if (errorLoadImage <8){
+        let texture = PIXI.Texture.from(url)
+        image.texture = cropImage(image,texture) 
+        //image.texture = texture
 
-      loadTextureForImage(index)    // Catch errors silently, for not showing the following error message if it is aborted:
+        image.loaded = true
+      })
     }
-    
-  })
+
 }
 
 function initText(){
@@ -278,11 +282,12 @@ function textDelayDisplay(i){
 }
 
 function checkText(){
-    text.x = viewport.hitArea.x + viewport.hitArea.width /2 -text.width/2;
-    text.y = viewport.hitArea.y + viewport.hitArea.height /2 -text.height/2;
-} 
 
+  text.x = viewport.hitArea.x + viewport.hitArea.width /2 -text.width/2;
+  text.y = viewport.hitArea.y + viewport.hitArea.height /2 -text.height/2;
+}
 function cropImage(image,texture){
+  return texture
   let imageRatioW = image.width/image.height
 
   let textureRatio = texture.width/texture.height
@@ -302,21 +307,14 @@ function cropImage(image,texture){
   else{
     let hcut = (texture.height-image.height)/2
      texture2 = new PIXI.Texture(texture,new PIXI.Rectangle(0, hcut, texture.width, image.height))
-  //   texture2=texture
+     //texture2=texture
   //  
   }
-
+  console.log(texture2.width)
 
   return texture
-//console.log(image.w*gridSize, image.h*gridSize)
-//console.log(image._width)
-//console.log(image.texture)
-
-//console.log(image._frame.x)
-return texture
-
 }
 function debug(){
   
-  //console.log(data)
+  console.log(viewport)
 }

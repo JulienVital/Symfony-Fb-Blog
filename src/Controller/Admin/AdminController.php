@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Service\ImportFromFaceBook;
 use App\Service\FbGraph;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,29 +14,21 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdminController extends AbstractController
 {
-    //#[Route('/admin', name: 'app_admin')]
-    //public function index(): Response
-    //{
-    //
-    //    
-    //    return $this->render('admin/index.html.twig', [
-    //        'controller_name' => 'AdminController',
-    //    ]);
-    //}
 
     #[Route('/facebook-pull-by-publication/', name: 'admin_pull_by_publication_facebook')]
-    public function pullByPublication(FbGraph $fbGraph, ImportFromFaceBook $ImportFromFaceBook): Response
+    public function pullByPublication(FbGraph $fbGraph, ImportFromFaceBook $ImportFromFaceBook, EntityManagerInterface $em): Response
     {
         $publications = $fbGraph->getAllPublication();
-        
         $projects = [];
         foreach ($publications as $publication){
             $project = $ImportFromFaceBook->createProjectFromAlbum($publication);
+            
             $projects[]= $project;
+            $em->persist($project);
+            $em->flush();
+            
         }
         
-        dump($projects);
-        dump($publications);
 
 
         return $this->render('admin/index.html.twig', [
@@ -53,9 +46,9 @@ class AdminController extends AbstractController
     }
 
     #[Route('/', name: 'app_admin')]
-    public function admin(): Response
+    public function admin(FbGraph $fbGraph): Response
     {
- 
+        dump($fbGraph->getAlbums());
         return $this->render('admin/index.html.twig');
     }
 }

@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\ImageRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @ORM\Entity(repositoryClass=ImageRepository::class)
@@ -27,8 +26,6 @@ class Image
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $alt;
-
-    private $file;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -67,16 +64,6 @@ class Image
         $this->alt = $alt;
 
         return $this;
-    }
-
-    public function setFile(File $myFile = null)
-    {
-        $this->file = $myFile;
-    }
-
-    public function getFile()
-    {
-        return $this->file;
     }
 
     public function getFacebookId(): ?string
