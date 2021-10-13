@@ -88,7 +88,7 @@ function initViewport(){
     //
     .clampZoom({maxScale: 0.7,  minScale :0.2 })
     .on('clicked', click)
-    .bounce({time:400});
+    //.bounce({time:400});
   
 
 }
@@ -108,7 +108,7 @@ function onResize () {
   resizeTimer = setTimeout(() => {
     app.ticker.stop()
     init()
-  }, 200)  
+  }, 100)  
 }
 
 function initGrid () {
@@ -178,7 +178,7 @@ function fitWorld(){
   //viewport.worldHeight = container.height;
   //viewport.worldWidth = container.width;
   //
-  //viewport.bounce({})
+  viewport.bounce({})
   viewport.moveCenter(viewport.worldWidth/2,viewport.worldHeight/2)
   viewport.scaled=0.2
   viewport.animate({
@@ -210,7 +210,7 @@ function checkRectsAndImages(){
         setTimeout(function() {
    
           loadTextureForImage(index)
-        },Math.floor(Math.random() * (2500 - 10)) + 10);
+        },Math.floor(Math.random() * (500 - 10)) + 10);
       }
       // If image is loaded, increase alpha if possible
       if (image.loaded && image.alpha < 1) {
@@ -249,15 +249,18 @@ function loadTextureForImage (index) {
     if (imagesUrls[id]) {
       setTimeout(function() {
    
-        loadTextureForImage(index)
-      },Math.floor(Math.random() * (2500 - 10)) + 10);
+        loadTextureForImage(index++)
+      },Math.floor(Math.random() * (500 - 10)) + 10);
       
     } else {
       loader.add(id)
       loader.load((loader, resources) => {
-        console.log(resources[id].texture.width)
+        
         imagesUrls[id] = true
-        image.texture = PIXI.Texture.from(url)
+        let texture = PIXI.Texture.from(url)
+        image.texture = cropImage(image,texture) 
+        //image.texture = texture
+
         image.loaded = true
       })
     }
@@ -282,6 +285,34 @@ function checkText(){
 
   text.x = viewport.hitArea.x + viewport.hitArea.width /2 -text.width/2;
   text.y = viewport.hitArea.y + viewport.hitArea.height /2 -text.height/2;
+}
+function cropImage(image,texture){
+  return texture
+  let imageRatioW = image.width/image.height
+
+  let textureRatio = texture.width/texture.height
+  
+  let texture2
+  let ratioW = texture.width /image.width
+  let ratioH = texture.height /image.height
+
+ 
+  if (ratioW > ratioH){
+    let wcut = (texture.width-image.width)/2
+
+
+    texture2 = new PIXI.Texture(texture,new PIXI.Rectangle(wcut, 0, image.width, texture.height))
+    //texture2=texture
+  }
+  else{
+    let hcut = (texture.height-image.height)/2
+     texture2 = new PIXI.Texture(texture,new PIXI.Rectangle(0, hcut, texture.width, image.height))
+     //texture2=texture
+  //  
+  }
+  console.log(texture2.width)
+
+  return texture
 }
 function debug(){
   

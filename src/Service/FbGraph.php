@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\Project;
+use App\Service\Fbgraph\FbgraphQueryBuilder;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -14,7 +14,7 @@ class FbGraph
      */
     private $user;
     
-    public function __construct(private int $fbPageId, Security $security, private HttpClientInterface $client){
+    public function __construct(private int $fbPageId, Security $security, private HttpClientInterface $client, private FbgraphQueryBuilder $fbgraphQueryBuilder){
 
         $this->user= $security->getUser();
     }
@@ -22,32 +22,15 @@ class FbGraph
     public function getAlbums() :array
     {
         
-        $uri = $this->createUri("$this->fbPageId/albums",['name']);
+        $uri = $this->FbgraphQueryBuilder->createUri("$this->fbPageId/albums",['name']);
     
-		return $this->client->request('GET',$uri)->toArray();
+		return $this->FbgraphQueryBuilder->getResponse()->toArray();
     }
 
-    /**
-     * $ressource path of ressource fbGraph
-     * $fieldsRaw array with optional params fbgraph
-     */
-    private function createUri(string $ressource, array $fieldsRaw=[]) :string
-    {   
-        $uri = "https://graph.facebook.com/".$ressource."?";
-        
-        if (!empty($fieldsRaw)){
-
-            $uri .="fields=".implode(',',$fieldsRaw).'&';
-        }
-        $uri .="access_token=".$this->user->getPageToken();
-
-        return $uri;
-
-    }
 
     public function getAllPublication()
     {
-        $uri = $this->createUri("$this->fbPageId/posts",['message','attachments','permalink_url','place']);
+        $uri = $this->FbgraphQueryBuilder->createUri("$this->fbPageId/posts",['message','attachments','permalink_url','place']);
         $data = $this->arrayWithoutPagination($uri);
    
         $dataOrderByType=[];
@@ -65,7 +48,7 @@ class FbGraph
      */
     private function arrayWithoutPagination($uri, $data=[]):array{
        
-        $nextdata = $this->client->request('GET',$uri)->toArray();
+        $nextdata = $this->FbgraphQueryBuilder->getResponse()->toArray();
         $nextpage = $nextdata['paging']['next'] ?? null;
 
         if (isset($nextpage)){
@@ -79,7 +62,7 @@ class FbGraph
 
     public function getImage($node)
     {
-        $uri = $this->createUri("$node",['images']);
+        $uri = $this->FbgraphQueryBuilder->createUri("$node",['images']);
         $dataImages = $this->client->request('GET',$uri)->toArray();
    
         return current($dataImages['images'])['source'];
