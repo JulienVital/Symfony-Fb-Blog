@@ -86,7 +86,7 @@ function initViewport(){
     .wheel()
     .decelerate()
     //
-    .clampZoom({maxScale: 0.7,  minScale :0.2 })
+    .clampZoom({maxScale: 0.7,  minScale :0.25 })
     .on('clicked', click)
     //.bounce({time:400});
   

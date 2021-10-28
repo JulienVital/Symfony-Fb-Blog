@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Service\ImportFromFaceBook;
 use App\Service\FbGraph;
+use App\Service\FbGraph\GetAllPublications;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,16 +17,18 @@ class AdminController extends AbstractController
 {
 
     #[Route('/facebook-pull-by-publication/', name: 'admin_pull_by_publication_facebook')]
-    public function pullByPublication(FbGraph $fbGraph, ImportFromFaceBook $ImportFromFaceBook, EntityManagerInterface $em): Response
+    public function pullByPublication(GetAllPublications $getAllPublications, ImportFromFaceBook $ImportFromFaceBook, EntityManagerInterface $em): Response
     {
-        $publications = $fbGraph->getAllPublication();
+        $publications = $getAllPublications->execute();
         $projects = [];
         foreach ($publications as $publication){
             $project = $ImportFromFaceBook->createProjectFromAlbum($publication);
             
-            $projects[]= $project;
-            $em->persist($project);
-            $em->flush();
+            if ($project){
+                $projects[]= $project;
+                $em->persist($project);
+                $em->flush();
+            }
             
         }
         

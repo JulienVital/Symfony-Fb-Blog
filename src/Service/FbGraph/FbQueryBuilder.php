@@ -1,20 +1,19 @@
 <?php
 
-namespace App\Service\Fbgraph;
+namespace App\Service\FbGraph;
 
 use App\Entity\User;
-use Doctrine\ORM\Query\AST\Node;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class FbgraphQueryBuilder
+class FbQueryBuilder
 {
     /** @var User */
     private $user ;
 
     private $uri ;
 
-    public function __construct(private int $fbPageId, Security $security, private HttpClientInterface $client){
+    public function __construct(Security $security, private HttpClientInterface $client){
 
         $this->user= $security->getUser();
     }
@@ -42,4 +41,15 @@ class FbgraphQueryBuilder
         return $this->client->request('GET',$this->uri);
     }
 
+
+
+    /**
+     * Set the value of uri
+     */
+    public function setUri($uri): self
+    {
+        $this->uri = $uri;
+
+        return $this;
+    }
 }

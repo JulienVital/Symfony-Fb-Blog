@@ -50,6 +50,12 @@ class Project
      */
     private $title;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Image::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $imageShowcase;
+
     public function __construct()
     {
         $this->images = new ArrayCollection();
@@ -146,6 +152,18 @@ class Project
     public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getImageShowcase(): ?Image
+    {
+        return $this->imageShowcase;
+    }
+
+    public function setImageShowcase(Image $imageShowcase): self
+    {
+        $this->imageShowcase = $imageShowcase;
 
         return $this;
     }

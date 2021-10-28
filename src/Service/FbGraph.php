@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Service\Fbgraph\FbgraphQueryBuilder;
+use App\Service\FbGraph\FbQueryBuilder;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -14,55 +14,27 @@ class FbGraph
      */
     private $user;
     
-    public function __construct(private int $fbPageId, Security $security, private HttpClientInterface $client, private FbgraphQueryBuilder $fbgraphQueryBuilder){
+    public function __construct(private int $fbPageId, Security $security, private HttpClientInterface $client, private FbQueryBuilder $fbQueryBuilder){
 
         $this->user= $security->getUser();
     }
 
-    public function getAlbums() :array
+    public function getAlbums()
     {
         
-        $uri = $this->FbgraphQueryBuilder->createUri("$this->fbPageId/albums",['name']);
+        //$uri = $this->FbgraphQueryBuilder->createUri("$this->fbPageId/albums",['name']);
     
-		return $this->FbgraphQueryBuilder->getResponse()->toArray();
+		//return $this->FbgraphQueryBuilder->getResponse()->toArray();
     }
 
 
-    public function getAllPublication()
-    {
-        $uri = $this->FbgraphQueryBuilder->createUri("$this->fbPageId/posts",['message','attachments','permalink_url','place']);
-        $data = $this->arrayWithoutPagination($uri);
-   
-        $dataOrderByType=[];
-        foreach ($data as $key => $value){
 
-            $type = $value['attachments']['data'][0]['type'] ??null;
-            $dataOrderByType[$type][]=$value;
 
-        }
-        return $dataOrderByType['album'];
-    }
 
-    /**
-     * get an uniq array from facebook with only data
-     */
-    private function arrayWithoutPagination($uri, $data=[]):array{
-       
-        $nextdata = $this->FbgraphQueryBuilder->getResponse()->toArray();
-        $nextpage = $nextdata['paging']['next'] ?? null;
-
-        if (isset($nextpage)){
-
-            $data= array_merge($data,$nextdata['data']);
-            $data = $this->arrayWithoutPagination($nextpage, $data);
-
-        }
-        return $data;
-    }
 
     public function getImage($node)
     {
-        $uri = $this->FbgraphQueryBuilder->createUri("$node",['images']);
+        $uri = $this->fbQueryBuilder->createUri("$node",['images']);
         $dataImages = $this->client->request('GET',$uri)->toArray();
    
         return current($dataImages['images'])['source'];

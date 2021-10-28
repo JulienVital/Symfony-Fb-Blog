@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Project;
 use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,7 +38,21 @@ class PublicController extends AbstractController
  
         $all = array_column($imageRepository->findAllurl(),'url');
 
+        return $this->render('public/page.html.twig', [
+            'arrTrans' => $all
+        ]);
+    }
 
+    /**
+     * @Route("/test/{id}", name="testId", requirements={"id"="\d+"})
+     * 
+     */
+    public function testId(Project $project): Response
+    {
+ 
+        dump($project);
+        $all =$project->getImageShowcase();
+        dd($all);
         return $this->render('public/page.html.twig', [
             'arrTrans' => $all
         ]);

@@ -31,13 +31,18 @@ class ImportFromFaceBook
             $project->setTitle($rawProject["message"]??uniqid());
             $project->setSlug($this->slugger->slug($project->getTitle())??uniqid());
         foreach ($rawProject['attachments']['data'][0]['subattachments']['data'] as $value){
-            $project->addImage($this->createImageFromId($value['target']['id']));
+            if (!$project->getImageShowcase()){
+                $project->setImageShowcase($this->createImageFromId($value['target']['id']));
+            }else{
+
+                $project->addImage($this->createImageFromId($value['target']['id']));
+            }
         }
         return $project;
 
     }
 
-    public function createImageFromId(string $imageId):Image{
+    private function createImageFromId(string $imageId):Image{
 
         $image = new Image();
         $this->em->persist($image);
@@ -46,13 +51,10 @@ class ImportFromFaceBook
 
         $image->setFacebookId($imageId);
         
-        $image->setUrl('photos/'.uniqid().".jpg");
+        $image->setUrl('photos/'.$imageId.".jpg");
 
         file_put_contents($image->getUrl(),$file);
         
-        //$test = new UploadedFile($file,uniqid());
-        //dd($test);
-
         return $image;
     }
 }

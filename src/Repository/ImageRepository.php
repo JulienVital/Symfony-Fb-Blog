@@ -25,7 +25,7 @@ class ImageRepository extends ServiceEntityRepository
         $sql = '
             SELECT url FROM image';
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->executeQuery();
 
         // returns an array of arrays (i.e. a raw data set)
         return $stmt->fetchAll();
